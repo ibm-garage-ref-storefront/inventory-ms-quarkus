@@ -1,4 +1,4 @@
-package ibm.cn;
+package ibm.cn.application;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
@@ -10,12 +10,12 @@ import static org.hamcrest.CoreMatchers.is;
 public class InventoryResourceTest {
 
     @Test
-    public void testHelloEndpoint() {
+    public void testInventoryEndpoint() {
         given()
-          .when().get("/inventory")
+          .when().get("/micro/inventory/resource")
           .then()
              .statusCode(200)
-             .body(is("Hello RESTEasy"));
+             .body(is("InventoryResource response"));
     }
 
 }

@@ -1,4 +1,4 @@
-package ibm.cn;
+package ibm.cn.application;
 
 import io.quarkus.test.junit.NativeImageTest;
 

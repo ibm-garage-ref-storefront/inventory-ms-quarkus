@@ -17,6 +17,12 @@ public class InventoryResource {
 	public InventoryResource(InventoryRepository inventoryRepository) {
 	  this.inventoryRepository = inventoryRepository;
 	}
+	
+	@GET
+	@Path("/resource")
+    public String getRequest() {
+        return "InventoryResource response";
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
