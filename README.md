@@ -18,6 +18,7 @@ https://cloudnativereference.dev/*
     + [Validating the application](#validating-the-application)
     + [Exiting the application](#exiting-the-application)
 * [Conclusion](#conclusion)
+* [References](#references)
 
 ## Introduction
 
@@ -33,7 +34,7 @@ Here is an overview of the project's features:
 
 * Get all items in inventory:
     + `http://localhost:8080/micro/inventory`
-    
+
 ## Pre-requisites:
 
 * [Java](https://www.java.com/en/)
@@ -105,7 +106,7 @@ owners.
 
 Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
-mysql> 
+mysql>
 ```
 
 - Go to `scripts > mysql_data.sql`. Copy the contents from [mysql_data.sql](./scripts/mysql_data.sql) and paste the contents in the console.
@@ -129,18 +130,18 @@ root@d88a6e5973de:/# exit
 
 You can run your application in dev mode that enables live coding using:
 ```shell script
-./mvnw compile quarkus:dev -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password 
+./mvnw compile quarkus:dev -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password
 ```
 
 If it is successful, you will see something like this.
 
 ```
 [INFO] Nothing to compile - all classes are up to date
-[INFO] 
+[INFO]
 [INFO] --- quarkus-maven-plugin:1.11.1.Final:dev (default-cli) @ inventory-ms-quarkus ---
 Listening for transport dt_socket at address: 5005
-__  ____  __  _____   ___  __ ____  ______ 
- --/ __ \/ / / / _ | / _ \/ //_/ / / / __/ 
+__  ____  __  _____   ___  __ ____  ______
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
  -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \   
 --\___\_\____/_/ |_/_/|_/_/|_|\____/___/   
 2021-02-03 19:05:06,707 WARN  [io.qua.res.com.dep.ResteasyCommonProcessor] (build-17) Quarkus detected the need of REST JSON support but you have not provided the necessary JSON extension for this. You can visit https://quarkus.io/guides/rest-json for more information on how to set one.
@@ -173,11 +174,92 @@ If it is run successfully, you will see something like below.
 
 ```
 $ java -jar -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password -jar target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner.jar
-__  ____  __  _____   ___  __ ____  ______ 
- --/ __ \/ / / / _ | / _ \/ //_/ / / / __/ 
+__  ____  __  _____   ___  __ ____  ______
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
  -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \   
 --\___\_\____/_/ |_/_/|_/_/|_|\____/___/   
 2021-02-03 19:17:22,404 INFO  [io.quarkus] (main) inventory-ms-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 1.11.1.Final) started in 6.010s. Listening on: http://0.0.0.0:8080
-2021-02-03 19:17:22,423 INFO  [io.quarkus] (main) Profile prod activated. 
+2021-02-03 19:17:22,423 INFO  [io.quarkus] (main) Profile prod activated.
 2021-02-03 19:17:22,423 INFO  [io.quarkus] (main) Installed features: [agroal, cdi, jdbc-mysql, mutiny, narayana-jta, resteasy, smallrye-context-propagation]
 ```
+
+#### Creating a native executable
+
+Note: In order to run the native executable, you need to install GraalVM. For instructions on how to install it, refer [this](https://quarkus.io/guides/building-native-image).
+
+You can create a native executable using:
+```shell script
+./mvnw package -Pnative
+```
+
+You can then execute your native executable with the below command:
+
+```
+./target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password
+```
+
+If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
+
+#### Running the application using docker
+
+- Build the JVM docker image and run the application.
+
+Package the application.
+```shell script
+./mvnw package -Dquarkus.native.container-build=true
+```
+
+Build the docker image using `Dockerfile.jvm`.
+```shell script
+docker build -f src/main/docker/Dockerfile.jvm -t inventory-ms-quarkus .
+```
+
+Run the application.
+```shell script
+docker run -it -d --rm -e quarkus.datasource.jdbc.url=jdbc:mysql://host.docker.internal:3306/inventorydb?useSSL=true -e quarkus.datasource.username=dbuser -e quarkus.datasource.password=password -p 8080:8080 inventory-ms-quarkus
+```
+
+- Build the native docker image and run the application.
+
+For native docker image, package the application using native profile.
+```shell script
+./mvnw package -Pnative -Dquarkus.native.container-build=true
+```
+
+Build the docker image using `Dockerfile.native`.
+```shell script
+docker build -f src/main/docker/Dockerfile.native -t inventory-ms-quarkus-native .
+```
+
+Run the application.
+```shell script
+docker run -it -d --rm -e quarkus.datasource.jdbc.url=jdbc:mysql://host.docker.internal:3306/inventorydb?useSSL=true -e quarkus.datasource.username=dbuser -e quarkus.datasource.password=password -p 8080:8080 inventory-ms-quarkus-native
+```
+
+### Validating the application
+
+Now, you can validate the application as follows.
+
+- Try to hit http://localhost:8080/micro/inventory and you should be able to see a list of items.
+
+- You can also do it using the below command.
+
+```
+curl http://localhost:8080/micro/inventory
+```
+
+![Inventory api](static/inventory_api_result.png?raw=true)
+
+### Exiting the application
+
+To exit the application, just press `Ctrl+C`.
+
+## Conclusion
+
+You have successfully developed and deployed the Inventory Microservice and a MySQL database locally using Quarkus framework.
+
+## References
+
+- https://quarkus.io/guides/getting-started
+- https://quarkus.io/guides/config
+- https://quarkus.io/guides/building-native-image
