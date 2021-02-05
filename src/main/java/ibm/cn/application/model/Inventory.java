@@ -1,5 +1,8 @@
 package ibm.cn.application.model;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
+@RegisterForReflection
 public class Inventory {
 	
 	private long id;
