@@ -32,7 +32,7 @@ public class InventoryRepository {
             PreparedStatement ps = connection.prepareStatement(
                     "select id,stock,price,img_alt,img,name,description from inventorydb.items");
             ResultSet rs = ps.executeQuery();
-
+            
             while (rs.next()) {
                 Inventory item = new Inventory();
                 item.setId(rs.getLong("id"));
