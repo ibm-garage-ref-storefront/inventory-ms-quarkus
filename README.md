@@ -167,7 +167,7 @@ If you want to build an _über-jar_, execute the following command:
 The application is now runnable using the below command.
 
 ```
-java -jar target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner.jar -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password
+java -jar -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password -jar target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner.jar
 ```
 
 If it is run successfully, you will see something like below.

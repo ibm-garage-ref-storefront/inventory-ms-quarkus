@@ -47,8 +47,8 @@
       <artifactId>quarkus-agroal</artifactId>
     </dependency>
     <dependency>
-	  <groupId>com.google.code.gson</groupId>
-	  <artifactId>gson</artifactId>
+	  <groupId>io.quarkus</groupId>
+	  <artifactId>quarkus-resteasy-jsonb</artifactId>
 	</dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

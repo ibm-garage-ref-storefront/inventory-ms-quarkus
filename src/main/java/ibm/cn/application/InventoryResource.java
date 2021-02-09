@@ -1,12 +1,13 @@
 package ibm.cn.application;
 
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.google.gson.Gson;
-
+import ibm.cn.application.model.Inventory;
 import ibm.cn.application.repository.InventoryRepository;
 
 @Path("/micro/inventory")
@@ -26,8 +27,7 @@ public class InventoryResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getInventoryDetails() {
-        Gson gson = new Gson();
-        return gson.toJson(inventoryRepository.getInventoryDetails());
+    public List<Inventory> getInventoryDetails() {
+    	return inventoryRepository.getInventoryDetails();
     }
 }
