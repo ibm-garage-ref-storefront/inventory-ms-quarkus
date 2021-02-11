@@ -240,6 +240,8 @@ docker run -it -d --rm -e quarkus.datasource.jdbc.url=jdbc:mysql://host.docker.i
 
 Now, you can validate the application as follows.
 
+Note: If you are running using docker, use `8082` instead of `8080` as port.
+
 - Try to hit http://localhost:8080/micro/inventory and you should be able to see a list of items.
 
 - You can also do it using the below command.
@@ -253,6 +255,8 @@ curl http://localhost:8080/micro/inventory
 ### Exiting the application
 
 To exit the application, just press `Ctrl+C`.
+
+If using docker, use `docker stop <container_id>`
 
 ## Conclusion
 
