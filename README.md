@@ -270,6 +270,12 @@ curl http://localhost:8080/micro/inventory
 
 ![Inventory api](static/inventory_api_result.png?raw=true)
 
+- You can access the swagger api at http://localhost:8080/q/swagger-ui/
+
+![Inventory swagger api](static/inventory_swagger_api.png?raw=true)
+
+Note: If you are running using docker, use `8082` instead of `8080` as port.
+
 - To access Jaeger UI, use http://localhost:16686/ and point the service to `inventory-ms-quarkus` to access the traces.
 
 ![Inventory Jaeger traces](static/inventory_jaeger_traces.png?raw=true)
