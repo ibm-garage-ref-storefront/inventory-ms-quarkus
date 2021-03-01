@@ -298,3 +298,4 @@ You have successfully developed and deployed the Inventory Microservice and a My
 - https://quarkus.io/guides/config
 - https://quarkus.io/guides/building-native-image
 - https://quarkus.io/guides/opentracing
+- https://quarkus.io/guides/openapi-swaggerui
