@@ -12,6 +12,7 @@ import org.jboss.logging.Logger;
 
 import ibm.cn.application.model.Inventory;
 import ibm.cn.application.repository.InventoryRepository;
+import ibm.cn.application.repository.InventoryService;
 
 @Path("/micro/inventory")
 public class InventoryResource {
@@ -19,16 +20,18 @@ public class InventoryResource {
 	private static final Logger LOG = Logger.getLogger(InventoryResource.class);
 	
 	private final InventoryRepository inventoryRepository;
+	private final InventoryService inventoryService;
 
-	public InventoryResource(InventoryRepository inventoryRepository) {
+	public InventoryResource(InventoryRepository inventoryRepository, InventoryService inventoryService) {
 	  this.inventoryRepository = inventoryRepository;
+	  this.inventoryService = inventoryService;
 	}
 	
 	@GET
 	@Path("/resource")
     public String getRequest() {
 		LOG.info("/resource endpoint");
-        return "InventoryResource response";
+        return inventoryService.details();
     }
 
     @GET
