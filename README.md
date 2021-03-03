@@ -14,6 +14,8 @@ https://cloudnativereference.dev/*
     + [Get the Inventory application](#get-the-inventory-application)
     + [Run the MySQL Docker Container](#run-the-mysql-docker-container)
     + [Populate the MySQL Database](#populate-the-mysql-database)
+    + [Run the Jaeger Docker Container](#run-the-jaeger-docker-container)
+    + [Run the SonarQube Docker Container](#run-the-sonarqube-docker-container)
     + [Run the Inventory application](#run-the-inventory-application)
     + [Validating the application](#validating-the-application)
     + [Exiting the application](#exiting-the-application)
@@ -124,13 +126,43 @@ Bye
 root@d88a6e5973de:/# exit
 ```
 
+### Run the Jaeger Docker Container
+
+Set up Jaegar for opentracing. This enables distributed tracing in your application.
+
+```
+docker run -d -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 jaegertracing/all-in-one:latest
+```
+
+If it is successfully run, you will see something like this.
+
+```
+$ docker run -d -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 jaegertracing/all-in-one:latest
+1c127fd5dfd1f4adaf892f041e4db19568ebfcc0b1961bec52a567f963014411
+```
+
+### Run the SonarQube Docker Container
+
+Set up SonarQube for code quality analysis. This will allow you to detect bugs in the code automatically and alerts the developer to fix them.
+
+```
+docker run -d --name sonarqube -p 9000:9000 sonarqube
+```
+
+If it is successfully run, you will see something like this.
+
+```
+$ docker run -d --name sonarqube -p 9000:9000 sonarqube
+1b4ca4e26ceaeacdfd1f4adaf892f041e4db19568ebfcc0b1961b4ca4e26ceae
+```
+
 ### Run the Inventory application
 
 #### Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
 ```shell script
-./mvnw compile quarkus:dev -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password
+./mvnw compile quarkus:dev -Dquarkus.datasource.jdbc.url=jdbc:tracing:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password -DJAEGER_AGENT_HOST=localhost -DJAEGER_AGENT_PORT=6831 -DJAEGER_SERVICE_NAME=inventory-ms-quarkus -DJAEGER_SAMPLER_TYPE=const -DJAEGER_SAMPLER_PARAM=1
 ```
 
 If it is successful, you will see something like this.
@@ -144,10 +176,10 @@ __  ____  __  _____   ___  __ ____  ______
  --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
  -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \   
 --\___\_\____/_/ |_/_/|_/_/|_|\____/___/   
-2021-02-03 19:05:06,707 WARN  [io.qua.res.com.dep.ResteasyCommonProcessor] (build-17) Quarkus detected the need of REST JSON support but you have not provided the necessary JSON extension for this. You can visit https://quarkus.io/guides/rest-json for more information on how to set one.
-2021-02-03 19:05:07,442 INFO  [io.quarkus] (Quarkus Main Thread) inventory-ms-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 1.11.1.Final) started in 1.418s. Listening on: http://localhost:8080
-2021-02-03 19:05:07,444 INFO  [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
-2021-02-03 19:05:07,444 INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [agroal, cdi, jdbc-mysql, mutiny, narayana-jta, resteasy, smallrye-context-propagation]
+17:15:40 INFO  traceId=, spanId=, sampled= [io.quarkus] (Quarkus Main Thread) inventory-ms-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 1.11.1.Final) started in 1.442s. Listening on: http://localhost:8080
+17:15:40 INFO  traceId=, spanId=, sampled= [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
+17:15:40 INFO  traceId=, spanId=, sampled= [io.quarkus] (Quarkus Main Thread) Installed features: [agroal, cdi, jaeger, jdbc-mysql, mutiny, narayana-jta, resteasy, resteasy-jsonb, smallrye-context-propagation, smallrye-opentracing]
+17:16:15 INFO  traceId=626cce48d0f630d3, spanId=626cce48d0f630d3, sampled=true [ib.cn.ap.InventoryResource] (executor-thread-1) /inventory endpoint
 ```
 
 #### Packaging and running the application
@@ -167,20 +199,20 @@ If you want to build an _über-jar_, execute the following command:
 The application is now runnable using the below command.
 
 ```
-java -jar -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password -jar target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner.jar
+java -jar -Dquarkus.datasource.jdbc.url=jdbc:tracing:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password -DJAEGER_AGENT_HOST=localhost -DJAEGER_AGENT_PORT=6831 -DJAEGER_SERVICE_NAME=inventory-ms-quarkus -DJAEGER_SAMPLER_TYPE=const -DJAEGER_SAMPLER_PARAM=1 -jar target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner.jar
 ```
 
 If it is run successfully, you will see something like below.
 
 ```
-$ java -jar -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password -jar target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner.jar
+$ java -jar -Dquarkus.datasource.jdbc.url=jdbc:tracing:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password -DJAEGER_AGENT_HOST=localhost -DJAEGER_AGENT_PORT=6831 -DJAEGER_SERVICE_NAME=inventory-ms-quarkus -DJAEGER_SAMPLER_TYPE=const -DJAEGER_SAMPLER_PARAM=1 -jar target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner.jar
 __  ____  __  _____   ___  __ ____  ______
  --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
  -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \   
 --\___\_\____/_/ |_/_/|_/_/|_|\____/___/   
-2021-02-03 19:17:22,404 INFO  [io.quarkus] (main) inventory-ms-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 1.11.1.Final) started in 6.010s. Listening on: http://0.0.0.0:8080
-2021-02-03 19:17:22,423 INFO  [io.quarkus] (main) Profile prod activated.
-2021-02-03 19:17:22,423 INFO  [io.quarkus] (main) Installed features: [agroal, cdi, jdbc-mysql, mutiny, narayana-jta, resteasy, smallrye-context-propagation]
+17:42:43 INFO  traceId=, spanId=, sampled= [io.quarkus] (main) inventory-ms-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 1.11.1.Final) started in 5.814s. Listening on: http://0.0.0.0:8080
+17:42:43 INFO  traceId=, spanId=, sampled= [io.quarkus] (main) Profile prod activated.
+17:42:43 INFO  traceId=, spanId=, sampled= [io.quarkus] (main) Installed features: [agroal, cdi, jaeger, jdbc-mysql, mutiny, narayana-jta, resteasy, resteasy-jsonb, smallrye-context-propagation, smallrye-opentracing]
 ```
 
 #### Creating a native executable
@@ -192,10 +224,12 @@ You can create a native executable using:
 ./mvnw package -Pnative
 ```
 
+If you run into any errors, make sure you configured your environment properly. For clear instructions, refer this [doc](https://quarkus.io/guides/building-native-image).
+
 You can then execute your native executable with the below command:
 
 ```
-./target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner -Dquarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password
+./target/inventory-ms-quarkus-1.0.0-SNAPSHOT-runner -Dquarkus.datasource.jdbc.url=jdbc:tracing:mysql://localhost:3306/inventorydb?useSSL=true -Dquarkus.datasource.username=dbuser -Dquarkus.datasource.password=password -DJAEGER_AGENT_HOST=localhost -DJAEGER_AGENT_PORT=6831 -DJAEGER_SERVICE_NAME=inventory-ms-quarkus -DJAEGER_SAMPLER_TYPE=const -DJAEGER_SAMPLER_PARAM=1
 ```
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
@@ -216,7 +250,7 @@ docker build -f src/main/docker/Dockerfile.jvm -t inventory-ms-quarkus .
 
 Run the application.
 ```shell script
-docker run -it -d --rm -e quarkus.datasource.jdbc.url=jdbc:mysql://host.docker.internal:3306/inventorydb?useSSL=true -e quarkus.datasource.username=dbuser -e quarkus.datasource.password=password -p 8080:8080 inventory-ms-quarkus
+docker run -it -d --rm -e quarkus.datasource.jdbc.url=jdbc:tracing:mysql://host.docker.internal:3306/inventorydb?useSSL=true -e quarkus.datasource.username=dbuser -e quarkus.datasource.password=password -e JAEGER_AGENT_HOST=host.docker.internal -e JAEGER_AGENT_PORT=6831 -e JAEGER_SERVICE_NAME=inventory-ms-quarkus -e JAEGER_SAMPLER_TYPE=const -e JAEGER_SAMPLER_PARAM=1 -p 8082:8080 inventory-ms-quarkus
 ```
 
 - Build the native docker image and run the application.
@@ -233,7 +267,7 @@ docker build -f src/main/docker/Dockerfile.native -t inventory-ms-quarkus-native
 
 Run the application.
 ```shell script
-docker run -it -d --rm -e quarkus.datasource.jdbc.url=jdbc:mysql://host.docker.internal:3306/inventorydb?useSSL=true -e quarkus.datasource.username=dbuser -e quarkus.datasource.password=password -p 8080:8080 inventory-ms-quarkus-native
+docker run -it -d --rm -e quarkus.datasource.jdbc.url=jdbc:tracing:mysql://host.docker.internal:3306/inventorydb?useSSL=true -e quarkus.datasource.username=dbuser -e quarkus.datasource.password=password -e JAEGER_AGENT_HOST=host.docker.internal -e JAEGER_AGENT_PORT=6831 -e JAEGER_SERVICE_NAME=inventory-ms-quarkus -e JAEGER_SAMPLER_TYPE=const -e JAEGER_SAMPLER_PARAM=1 -p 8082:8080 inventory-ms-quarkus-native
 ```
 
 ### Validating the application
@@ -252,6 +286,81 @@ curl http://localhost:8080/micro/inventory
 
 ![Inventory api](static/inventory_api_result.png?raw=true)
 
+- You can access the swagger api at http://localhost:8080/q/swagger-ui/
+
+![Inventory swagger api](static/inventory_swagger_api.png?raw=true)
+
+Note: If you are running using docker, use `8082` instead of `8080` as port.
+
+- To access Jaeger UI, use http://localhost:16686/ and point the service to `inventory-ms-quarkus` to access the traces.
+
+![Inventory Jaeger traces](static/inventory_jaeger_traces.png?raw=true)
+
+![Inventory Jaeger trace details](static/inventory_jaeger_trace_details.png?raw=true)
+
+- To perform code quality checks, run the below commands.
+
+Do a clean install to generate necessary artifacts.
+
+```
+./mvnw clean install
+```
+
+If it is successful, you will see something like this.
+
+```
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ inventory-ms-quarkus ---
+[INFO] Installing /Users/Hemankita1/IBM/CN_Ref/Quarkus/inventory-ms-quarkus/target/inventory-ms-quarkus-1.0.0-SNAPSHOT.jar to /Users/Hemankita1/.m2/repository/ibm/cn/inventory-ms-quarkus/1.0.0-SNAPSHOT/inventory-ms-quarkus-1.0.0-SNAPSHOT.jar
+[INFO] Installing /Users/Hemankita1/IBM/CN_Ref/Quarkus/inventory-ms-quarkus/pom.xml to /Users/Hemankita1/.m2/repository/ibm/cn/inventory-ms-quarkus/1.0.0-SNAPSHOT/inventory-ms-quarkus-1.0.0-SNAPSHOT.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  32.931 s
+[INFO] Finished at: 2021-03-03T17:46:31+05:30
+[INFO] ------------------------------------------------------------------------
+```
+
+Now run sonar as follows.
+
+```
+./mvnw sonar:sonar -Dsonar.host.url=http://<sonarqube_host>:<sonarqube_port> -Dsonar.login=<sonarqube_access_token>
+```
+
+To get the sonarqube access token, login to the sonarqube ui. Then go to `User` > `My Account`. Now, select `Security` and then generate a token.
+
+If it is successful, you will see something like this.
+
+```
+$ ./mvnw sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=ae4e075e9d30bb18f59c79398c60a902b1213376
+[INFO] Scanning for projects...
+[INFO]
+[INFO] --------------------< ibm.cn:inventory-ms-quarkus >---------------------
+[INFO] Building inventory-ms-quarkus 1.0.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- sonar-maven-plugin:3.7.0.1746:sonar (default-cli) @ inventory-ms-quarkus ---
+[INFO] User cache: /Users/Hemankita1/.sonar/cache
+[INFO] SonarQube version: 8.7.0
+..........
+..........
+[INFO] ANALYSIS SUCCESSFUL, you can browse http://localhost:9000/dashboard?id=ibm.cn%3Ainventory-ms-quarkus
+[INFO] Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
+[INFO] More about the report processing at http://localhost:9000/api/ce/task?id=AXf4CXfU2BNUfGBXQX4d
+[INFO] Analysis total time: 7.776 s
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.595 s
+[INFO] Finished at: 2021-03-03T17:51:46+05:30
+[INFO] ------------------------------------------------------------------------
+```
+
+- Now, access http://localhost:9000/, login using the credentials admin/admin, and then you will see something like below.
+
+![Inventory SonarQube](static/inventory_sonarqube.png?raw=true)
+
+![Inventory SonarQube details](static/inventory_sonarqube_details.png?raw=true)
+
 ### Exiting the application
 
 To exit the application, just press `Ctrl+C`.
@@ -264,6 +373,10 @@ You have successfully developed and deployed the Inventory Microservice and a My
 
 ## References
 
-- https://quarkus.io/guides/getting-started
-- https://quarkus.io/guides/config
-- https://quarkus.io/guides/building-native-image
+- [Quarkus starter template](https://quarkus.io/guides/getting-started)
+- [Quarkus Configuration](https://quarkus.io/guides/config)
+- [Building native image using Quarkus](https://quarkus.io/guides/building-native-image)
+- [Enabling Opentracing for Quarkus example](https://quarkus.io/guides/opentracing)
+- [Enabling Openapi for Quarkus example](https://quarkus.io/guides/openapi-swaggerui)
+- [Measuring the coverage of tests](https://quarkus.io/guides/tests-with-coverage)
+- [Building native image using a multi stage docker build](https://quarkus.io/guides/building-native-image#using-a-multi-stage-docker-build)

@@ -1,24 +1,26 @@
 package ibm.cn.application;
 
-import io.quarkus.test.junit.QuarkusTest;
-
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.http.ContentType;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
 @Tag("integration")
-public class InventoryResourceTest {
-
-    @Test
-    public void testInventoryEndpoint() {
+public class HealthResourceTest {
+	
+	@Test
+    public void testHealthEndpoint() {
         given()
-          .when().get("/micro/inventory/resource")
+          .when().get("/health")
           .then()
              .statusCode(200)
-             .body(is("InventoryResource response"));
+             .contentType(ContentType.JSON)
+             .body("status", is("UP"));
     }
 
 }
