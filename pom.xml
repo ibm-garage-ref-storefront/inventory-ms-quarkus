@@ -18,6 +18,11 @@
     <quarkus.platform.version>1.11.1.Final</quarkus.platform.version>
     <surefire-plugin.version>2.22.1</surefire-plugin.version>
     <jacoco.version>0.8.4</jacoco.version>
+    <!-- Sonar -->
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+    <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.language>java</sonar.language>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -249,6 +254,16 @@
       <properties>
         <quarkus.package.type>native</quarkus.package.type>
       </properties>
+    </profile>
+    <profile>
+        <id>sonar</id>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+        <properties>
+          <sonar.host.url>sonarqube_url</sonar.host.url>
+          <sonar.login>sonarqube_security_token</sonar.login>
+        </properties>
     </profile>
   </profiles>
 </project>

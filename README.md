@@ -15,6 +15,7 @@ https://cloudnativereference.dev/*
     + [Run the MySQL Docker Container](#run-the-mysql-docker-container)
     + [Populate the MySQL Database](#populate-the-mysql-database)
     + [Run the Jaeger Docker Container](#run-the-jaeger-docker-container)
+    + [Run the SonarQube Docker Container](#run-the-sonarqube-docker-container)
     + [Run the Inventory application](#run-the-inventory-application)
     + [Validating the application](#validating-the-application)
     + [Exiting the application](#exiting-the-application)
@@ -138,6 +139,21 @@ If it is successfully run, you will see something like this.
 ```
 $ docker run -d -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 jaegertracing/all-in-one:latest
 1c127fd5dfd1f4adaf892f041e4db19568ebfcc0b1961bec52a567f963014411
+```
+
+### Run the SonarQube Docker Container
+
+Set up SonarQube for code quality analysis. This will allow you to detect bugs in the code automatically and alerts the developer to fix them.
+
+```
+docker run -d --name sonarqube -p 9000:9000 sonarqube
+```
+
+If it is successfully run, you will see something like this.
+
+```
+$ docker run -d --name sonarqube -p 9000:9000 sonarqube
+1b4ca4e26ceaeacdfd1f4adaf892f041e4db19568ebfcc0b1961b4ca4e26ceae
 ```
 
 ### Run the Inventory application
@@ -282,6 +298,69 @@ Note: If you are running using docker, use `8082` instead of `8080` as port.
 
 ![Inventory Jaeger trace details](static/inventory_jaeger_trace_details.png?raw=true)
 
+- To perform code quality checks, run the below commands.
+
+Do a clean install to generate necessary artifacts.
+
+```
+./mvnw clean install
+```
+
+If it is successful, you will see something like this.
+
+```
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ inventory-ms-quarkus ---
+[INFO] Installing /Users/Hemankita1/IBM/CN_Ref/Quarkus/inventory-ms-quarkus/target/inventory-ms-quarkus-1.0.0-SNAPSHOT.jar to /Users/Hemankita1/.m2/repository/ibm/cn/inventory-ms-quarkus/1.0.0-SNAPSHOT/inventory-ms-quarkus-1.0.0-SNAPSHOT.jar
+[INFO] Installing /Users/Hemankita1/IBM/CN_Ref/Quarkus/inventory-ms-quarkus/pom.xml to /Users/Hemankita1/.m2/repository/ibm/cn/inventory-ms-quarkus/1.0.0-SNAPSHOT/inventory-ms-quarkus-1.0.0-SNAPSHOT.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  32.931 s
+[INFO] Finished at: 2021-03-03T17:46:31+05:30
+[INFO] ------------------------------------------------------------------------
+```
+
+Now run sonar as follows.
+
+```
+./mvnw sonar:sonar -Dsonar.host.url=http://<sonarqube_host>:<sonarqube_port> -Dsonar.login=<sonarqube_access_token>
+```
+
+To get the sonarqube access token, login to the sonarqube ui. Then go to `User` > `My Account`. Now, select `Security` and then generate a token.
+
+If it is successful, you will see something like this.
+
+```
+$ ./mvnw sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=ae4e075e9d30bb18f59c79398c60a902b1213376
+[INFO] Scanning for projects...
+[INFO]
+[INFO] --------------------< ibm.cn:inventory-ms-quarkus >---------------------
+[INFO] Building inventory-ms-quarkus 1.0.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- sonar-maven-plugin:3.7.0.1746:sonar (default-cli) @ inventory-ms-quarkus ---
+[INFO] User cache: /Users/Hemankita1/.sonar/cache
+[INFO] SonarQube version: 8.7.0
+..........
+..........
+[INFO] ANALYSIS SUCCESSFUL, you can browse http://localhost:9000/dashboard?id=ibm.cn%3Ainventory-ms-quarkus
+[INFO] Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
+[INFO] More about the report processing at http://localhost:9000/api/ce/task?id=AXf4CXfU2BNUfGBXQX4d
+[INFO] Analysis total time: 7.776 s
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.595 s
+[INFO] Finished at: 2021-03-03T17:51:46+05:30
+[INFO] ------------------------------------------------------------------------
+```
+
+- Now, access http://localhost:9000/, login using the credentials admin/admin, and then you will see something like below.
+
+![Inventory SonarQube](static/inventory_sonarqube.png?raw=true)
+
+![Inventory SonarQube details](static/inventory_sonarqube_details.png?raw=true)
+
 ### Exiting the application
 
 To exit the application, just press `Ctrl+C`.
@@ -299,4 +378,5 @@ You have successfully developed and deployed the Inventory Microservice and a My
 - [Building native image using Quarkus](https://quarkus.io/guides/building-native-image)
 - [Enabling Opentracing for Quarkus example](https://quarkus.io/guides/opentracing)
 - [Enabling Openapi for Quarkus example](https://quarkus.io/guides/openapi-swaggerui)
+- [Measuring the coverage of tests](https://quarkus.io/guides/tests-with-coverage)
 - [Building native image using a multi stage docker build](https://quarkus.io/guides/building-native-image#using-a-multi-stage-docker-build)
