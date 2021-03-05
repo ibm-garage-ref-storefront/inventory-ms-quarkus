@@ -39,6 +39,15 @@ ingress:
 jaegerConfigName: jaeger-config
 jaegerSecretName: jaeger-access
 
+# mysql username
+
+dbUsername: dbuser
+dbHost: inventory-mysql
+dbPort: 3306
+dbName: inventorydb
+
+mysqlSecretName: inventory-mysql
+
 vcsInfo:
   repoUrl: ""
   branch: ""

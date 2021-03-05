@@ -62,14 +62,15 @@ spec:
             - name: LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
             - name: quarkus.datasource.jdbc.url
-              value: jdbc:tracing:mysql://inventory-mysql:3306/inventorydb?useSSL=true
+              value: jdbc:tracing:mysql://{{ .Values.dbHost }}:{{ .Values.dbPort }}/{{ .Values.dbName }}?useSSL=true
             - name: quarkus.datasource.username
-              value: dbuser
+              value: {{ default "dbuser" .Values.dbUsername }}
             - name: quarkus.datasource.password
               valueFrom:
                 secretKeyRef:
                   key: mysql-password
                   name: inventory-mysql
+                  name: {{ default "inventory-mysql" .Values.mysqlSecretName }}
           envFrom:
             - configMapRef:
                 name: {{ default "jaeger-config" .Values.jaegerConfigName }}
