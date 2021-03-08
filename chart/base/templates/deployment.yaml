@@ -54,13 +54,13 @@ spec:
             initialDelaySeconds: 60
             periodSeconds: 20
           readinessProbe:
-            failureThreshold: 12
+            failureThreshold: 15
             httpGet:
-              path: /health
+              path: /
               port: http
             initialDelaySeconds: 60
-            periodSeconds: 10
-            timeoutSeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 30
           env:
             - name: INGRESS_HOST
               value: ""
