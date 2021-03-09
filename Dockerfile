@@ -1,21 +1,17 @@
-## Stage 1 : build with maven builder image with native capabilities
-FROM quay.io/quarkus/centos-quarkus-maven:21.0.0-java11 AS build
-COPY pom.xml /usr/src/app/
-RUN mvn -f /usr/src/app/pom.xml -B de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
-COPY src /usr/src/app/src
-USER root
-RUN chown -R quarkus /usr/src/app
-USER quarkus
-RUN mvn -f /usr/src/app/pom.xml clean package
+FROM adoptopenjdk/maven-openjdk11 as BUILD
 
-## Stage 2 : create the docker final image
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3 
+COPY src /usr/src/app/src
+COPY ./pom.xml /usr/src/app
+WORKDIR /usr/src/app
+RUN mvn package
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
 
 ARG JAVA_PACKAGE=java-11-openjdk-headless
 ARG RUN_JAVA_VERSION=1.3.8
+
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
-# Install java and the run-java script
-# Also set up permissions for user `1001`
+
 RUN microdnf install curl ca-certificates ${JAVA_PACKAGE} \
     && microdnf update \
     && microdnf clean all \
@@ -28,10 +24,10 @@ RUN microdnf install curl ca-certificates ${JAVA_PACKAGE} \
     && chmod 540 /deployments/run-java.sh \
     && echo "securerandom.source=file:/dev/urandom" >> /etc/alternatives/jre/lib/security/java.security
 
-# Configure the JAVA_OPTIONS, you can add -XshowSettings:vm to also display the heap size.
 ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
-COPY target/lib/* /deployments/lib/
-COPY target/*-runner.jar /deployments/app.jar
+
+COPY --from=BUILD /usr/src/app/target/lib/* /deployments/lib/
+COPY --from=BUILD /usr/src/app/target/*-runner.jar /deployments/app.jar
 
 EXPOSE 8080
 USER 1001
