@@ -71,7 +71,7 @@ spec:
             - name: INVENTORY_MYSQL_DB_HOST
               value: {{ .Values.dbHost }}
             - name: INVENTORY_MYSQL_DB_PORT
-              value: {{ .Values.dbPort }}
+              value: "{{ .Values.dbPort }}"
             - name: INVENTORY_MYSQL_DB_USERNAME
               value: {{ default "dbuser" .Values.dbUsername }}
             - name: INVENTORY_MYSQL_DB_PASSWORD
@@ -80,13 +80,13 @@ spec:
                   key: mysql-password
                   name: inventory-mysql
                   name: {{ default "inventory-mysql" .Values.mysqlSecretName }}
-          envFrom:
-            - configMapRef:
-                name: {{ default "jaeger-config" .Values.jaegerConfigName }}
-                optional: true
-            - secretRef:
-                name: {{ default "jaeger-access" .Values.jaegerSecretName }}
-                optional: true
+#           envFrom:
+#             - configMapRef:
+#                 name: {{ default "jaeger-config" .Values.jaegerConfigName }}
+#                 optional: true
+#             - secretRef:
+#                 name: {{ default "jaeger-access" .Values.jaegerSecretName }}
+#                 optional: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
