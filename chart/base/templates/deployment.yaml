@@ -46,21 +46,21 @@ spec:
             - name: http
               containerPort: {{ .Values.image.port }}
               protocol: TCP
-          livenessProbe:
-            failureThreshold: 60
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 120
-            periodSeconds: 120
-          readinessProbe:
-            failureThreshold: 60
-            httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 120
-            periodSeconds: 120
-            timeoutSeconds: 130
+#           livenessProbe:
+#             failureThreshold: 60
+#             httpGet:
+#               path: /health
+#               port: 8080
+#             initialDelaySeconds: 120
+#             periodSeconds: 120
+#           readinessProbe:
+#             failureThreshold: 60
+#             httpGet:
+#               path: /
+#               port: 8080
+#             initialDelaySeconds: 120
+#             periodSeconds: 120
+#             timeoutSeconds: 130
           env:
             - name: INGRESS_HOST
               value: ""
