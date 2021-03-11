@@ -4,7 +4,7 @@
 global: {}
 
 replicaCount: 1
-logLevel: "debug"
+logLevel: "INFO"
 
 image:
   repository: replace
@@ -20,7 +20,7 @@ service:
   port: 80
 
 route:
-  enabled: false
+  enabled: true
 
 ingress:
   enabled: true
@@ -35,18 +35,6 @@ ingress:
   path: "/"
 
 #  tlsSecretName: ""
-
-jaegerConfigName: jaeger-config
-jaegerSecretName: jaeger-access
-
-# mysql username
-
-dbUsername: dbuser
-dbHost: inventory-mysql
-dbPort: 3306
-dbName: inventorydb
-
-mysqlSecretName: inventory-mysql
 
 vcsInfo:
   repoUrl: ""

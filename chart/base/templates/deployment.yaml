@@ -5,10 +5,10 @@ metadata:
   annotations:
   {{- if and .Values.vcsInfo.repoUrl .Values.vcsInfo.branch }}
     app.openshift.io/vcs-ref: {{ .Values.vcsInfo.branch }}
-    app.openshift.io/vcs-uri: {{ .Values.vcsInfo.repoUrl }}
+    app.openshift.io/vcs-uri: {{ trimSuffix ".git" .Values.vcsInfo.repoUrl }}
   {{- end }}
   {{- if .Values.connectsTo }}
-    app.openshift.io/connects-to: {{ .Values.connectsTo }}
+    app.openshift.io/connects-to: {{ printf "[{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"name\":%s}]" (toJson .Values.connectsTo) | squote }}
   {{- end }}
   labels:
     app.kubernetes.io/name: {{ include "starter-kit.name" . }}
@@ -46,21 +46,14 @@ spec:
             - name: http
               containerPort: {{ .Values.image.port }}
               protocol: TCP
-#           livenessProbe:
-#             failureThreshold: 60
-#             httpGet:
-#               path: /health
-#               port: 8080
-#             initialDelaySeconds: 120
-#             periodSeconds: 120
-#           readinessProbe:
-#             failureThreshold: 60
-#             httpGet:
-#               path: /
-#               port: 8080
-#             initialDelaySeconds: 120
-#             periodSeconds: 120
-#             timeoutSeconds: 130
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
           env:
             - name: INGRESS_HOST
               value: ""
@@ -69,24 +62,13 @@ spec:
             - name: LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
             - name: INVENTORY_MYSQL_DB_HOST
-              value: {{ .Values.dbHost }}
+              value: "inventory-mysql"
             - name: INVENTORY_MYSQL_DB_PORT
-              value: "{{ .Values.dbPort }}"
+              value: "3306"
             - name: INVENTORY_MYSQL_DB_USERNAME
-              value: {{ default "dbuser" .Values.dbUsername }}
+              value: "dbuser"
             - name: INVENTORY_MYSQL_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: mysql-password
-                  name: inventory-mysql
-                  name: {{ default "inventory-mysql" .Values.mysqlSecretName }}
-#           envFrom:
-#             - configMapRef:
-#                 name: {{ default "jaeger-config" .Values.jaegerConfigName }}
-#                 optional: true
-#             - secretRef:
-#                 name: {{ default "jaeger-access" .Values.jaegerSecretName }}
-#                 optional: true
+              value: "password"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
