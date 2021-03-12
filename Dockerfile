@@ -3,7 +3,7 @@ FROM adoptopenjdk/maven-openjdk11 as BUILD
 COPY src /usr/src/app/src
 COPY ./pom.xml /usr/src/app
 WORKDIR /usr/src/app
-RUN mvn package
+RUN mvn package -Dquarkus.container-image.build=true
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
 
