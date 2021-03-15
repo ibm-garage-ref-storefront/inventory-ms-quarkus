@@ -62,13 +62,13 @@ spec:
             - name: LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
             - name: INVENTORY_MYSQL_DB_HOST
-              value: "inventory-mysql"
+              value: inventory-mysql
             - name: INVENTORY_MYSQL_DB_PORT
               value: "3306"
             - name: INVENTORY_MYSQL_DB_USERNAME
-              value: "dbuser"
+              value: dbuser
             - name: INVENTORY_MYSQL_DB_PASSWORD
-              value: "password"
+              value: password
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

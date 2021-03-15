@@ -17,7 +17,7 @@ fullnameOverride: ""
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
 
 route:
   enabled: true
@@ -44,4 +44,4 @@ partOf: ""
 
 connectsTo: ""
 
-runtime: spring
+runtime: quarkus
