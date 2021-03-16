@@ -46,14 +46,14 @@ spec:
             - name: http
               containerPort: {{ .Values.image.port }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
           env:
             - name: INGRESS_HOST
               value: ""
@@ -82,6 +82,16 @@ spec:
                 secretKeyRef:
                   name: sonarqube-access
                   key: SONARQUBE_TOKEN
+            - name: JAEGER_AGENT_HOST
+              value: jaeger-all-in-one-inmemory-agent
+            - name: JAEGER_AGENT_PORT
+              value: "6831"
+            - name: JAEGER_SERVICE_NAME
+              value: inventory-ms-quarkus
+            - name: JAEGER_SAMPLER_TYPE
+              value: const
+            - name: JAEGER_SAMPLER_PARAM
+              value: "1"
           envFrom:
             - configMapRef:
                 name: {{ default "jaeger-config" .Values.jaegerConfigName }}
