@@ -5,7 +5,7 @@ COPY ./pom.xml /usr/src/app
 WORKDIR /usr/src/app
 RUN mvn package -Dquarkus.container-image.build=true
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 ARG JAVA_PACKAGE=java-11-openjdk-headless
 ARG RUN_JAVA_VERSION=1.3.8

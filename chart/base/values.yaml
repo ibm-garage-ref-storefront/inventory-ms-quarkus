@@ -4,7 +4,7 @@
 global: {}
 
 replicaCount: 1
-logLevel: "INFO"
+logLevel: "debug"
 
 image:
   repository: replace
@@ -17,10 +17,10 @@ fullnameOverride: ""
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 80
 
 route:
-  enabled: true
+  enabled: false
 
 ingress:
   enabled: true
@@ -36,6 +36,9 @@ ingress:
 
 #  tlsSecretName: ""
 
+jaegerConfigName: jaeger-config
+jaegerSecretName: jaeger-access
+
 vcsInfo:
   repoUrl: ""
   branch: ""
@@ -44,4 +47,4 @@ partOf: ""
 
 connectsTo: ""
 
-runtime: quarkus
+runtime: spring

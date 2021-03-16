@@ -46,14 +46,14 @@ spec:
             - name: http
               containerPort: {{ .Values.image.port }}
               protocol: TCP
-#           livenessProbe:
-#             httpGet:
-#               path: /
-#               port: http
-#           readinessProbe:
-#             httpGet:
-#               path: /
-#               port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
           env:
             - name: INGRESS_HOST
               value: ""
@@ -68,7 +68,27 @@ spec:
             - name: INVENTORY_MYSQL_DB_USERNAME
               value: dbuser
             - name: INVENTORY_MYSQL_DB_PASSWORD
-              value: password
+              valueFrom:
+                secretKeyRef:
+                  name: inventory-mysql
+                  key: mysql-password
+            - name: SONAR_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sonarqube-access
+                  key: SONARQUBE_URL
+            - name: SONARQUBE_SECURITY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: sonarqube-access
+                  key: SONARQUBE_TOKEN
+          envFrom:
+            - configMapRef:
+                name: {{ default "jaeger-config" .Values.jaegerConfigName }}
+                optional: true
+            - secretRef:
+                name: {{ default "jaeger-access" .Values.jaegerSecretName }}
+                optional: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
