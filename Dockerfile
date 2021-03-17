@@ -31,6 +31,10 @@ ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jb
 COPY --from=BUILD /usr/src/app/target/lib/* /deployments/lib/
 COPY --from=BUILD /usr/src/app/target/*-runner.jar /deployments/app.jar
 
+RUN chgrp -R 0 /deployments/lib/ && chmod -R 770 /deployments/lib/
+
+RUN chgrp -R 0 /deployments/app.jar && chmod -R 770 /deployments/app.jar
+
 EXPOSE 8080
 USER 1001
 
