@@ -22,7 +22,7 @@ RUN microdnf install curl ca-certificates ${JAVA_PACKAGE} \
     && chmod "g+rwX" /deployments \
     && chown 1001:root /deployments \
     && curl https://repo1.maven.org/maven2/io/fabric8/run-java-sh/${RUN_JAVA_VERSION}/run-java-sh-${RUN_JAVA_VERSION}-sh.sh -o /deployments/run-java.sh \
-    && chown 1001 /deployments/run-java.sh \
+    && chgrp -R 0 /deployments/app.jar \
     && chmod 540 /deployments/run-java.sh \
     && echo "securerandom.source=file:/dev/urandom" >> /etc/alternatives/jre/lib/security/java.security
 
@@ -31,9 +31,9 @@ ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jb
 COPY --from=BUILD /usr/src/app/target/lib/* /deployments/lib/
 COPY --from=BUILD /usr/src/app/target/*-runner.jar /deployments/app.jar
 
-RUN chgrp -R 0 /deployments/lib/ && chmod -R 770 /deployments/lib/
+RUN chgrp -R 0 /deployments && chmod -R 770 /deployments
 
-RUN chgrp -R 0 /deployments/app.jar && chmod -R 770 /deployments/app.jar
+# RUN chgrp -R 0 /deployments/app.jar && chmod -R 770 /deployments/app.jar
 
 EXPOSE 8080
 USER 1001
