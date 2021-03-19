@@ -1,0 +1,87 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: inventory-ms-spring-populate-mysql
+  labels:
+    app: "inventory-ms-spring"
+spec:
+  template:
+    metadata:
+      name: inventory-ms-spring-populate-mysql
+      labels:
+        app: "inventory-ms-spring"
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: test-mysql
+        image: mysql:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e status; do echo waiting for mysql; sleep 1; done"
+        resources:
+          limits:
+            memory: 384Mi
+          requests:
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsUser: 2000
+        env:
+        - name: MYSQL_HOST
+          value: "inventory-mysql"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "inventorydb"
+        - name: MYSQL_USER
+          value: "dbuser"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: inventory-mysql
+              key: mysql-password
+      containers:
+      - name: populate-mysql
+        image: mysql:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /config
+          name: config
+          readOnly: true
+        - mountPath: /db-data
+          name: db-data
+        command: ["/bin/bash", "-c"]
+        args: ["cp /config/mysql_data.sql /db-data; sed -i \"s/inventorydb/${MYSQL_DATABASE}/g\" /db-data/mysql_data.sql; until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} </db-data/mysql_data.sql; do echo \"waiting for mysql\"; sleep 1; done; echo \"Loaded data into database\";"]
+        resources:
+          limits:
+            memory: 384Mi
+          requests:
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsUser: 2000
+        env:
+        - name: MYSQL_HOST
+          value: "inventory-mysql"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "inventorydb"
+        - name: MYSQL_USER
+          value: "dbuser"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: inventory-mysql
+              key: mysql-password
+      volumes:
+      - name: config
+        configMap:
+          name: inventory-ms-spring-data
+      - name: db-data
+        emptyDir:
+          medium: "Memory"
