@@ -12,8 +12,7 @@
 - Create a new project.
 
 ```
-oc new-project sf-quarkus
-oc sync sf-quarkus
+oc sync project1
 ```
 
 - Clone the `inventory-ms-quarkus` repo.
