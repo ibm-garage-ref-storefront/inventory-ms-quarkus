@@ -25,13 +25,17 @@ public class InventoryRepository {
 
         List<Inventory> inventoryItems = new ArrayList<>();
         
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
         try {
         	
-        	Connection connection = dataSource.getConnection();
+        	connection = dataSource.getConnection();
         	
-            PreparedStatement ps = connection.prepareStatement(
+            ps = connection.prepareStatement(
                     "select id,stock,price,img_alt,img,name,description from inventorydb.items");
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             
             while (rs.next()) {
                 Inventory item = new Inventory();
@@ -48,6 +52,22 @@ public class InventoryRepository {
         } catch (SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) { /* Ignored */}
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) { /* Ignored */}
+            }
+            if (connection != null) {
+                try {
+                	connection.close();
+                } catch (SQLException e) { /* Ignored */}
+            }
         }
         
         return inventoryItems;
